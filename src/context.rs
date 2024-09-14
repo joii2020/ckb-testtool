@@ -506,19 +506,24 @@ impl Context {
                 .simulator_binaries
                 .iter()
                 .map(|(code_hash, path)| {
-                    let buf = vec![
-                        code_hash.as_bytes().to_vec(),
-                        vec![0xff],
-                        0u32.to_le_bytes().to_vec(),
-                        0u32.to_le_bytes().to_vec(),
-                    ]
-                    .concat();
-
                     format!(
-                        "\"0x{}\" : \"{}\",",
-                        faster_hex::hex_string(&buf),
+                        "\"{}\" : \"{}\",",
+                        faster_hex::hex_string(&code_hash.as_bytes().to_vec()),
                         path.to_str().unwrap()
                     )
+                    // let buf = vec![
+                    //     code_hash.as_bytes().to_vec(),
+                    //     vec![0xff],
+                    //     0u32.to_le_bytes().to_vec(),
+                    //     0u32.to_le_bytes().to_vec(),
+                    // ]
+                    // .concat();
+
+                    // format!(
+                    //     "\"0x{}\" : \"{}\",",
+                    //     faster_hex::hex_string(&buf),
+                    //     path.to_str().unwrap()
+                    // )
                 })
                 .collect::<Vec<String>>()
                 .concat();
@@ -554,9 +559,9 @@ impl Context {
                             tmp_dir.as_ref().unwrap().join("ckb_running_setup.json");
 
                         let setup = format!(
-                            "{{\"is_lock_script\": {}, \"is_output\": false, \"script_index\": {}, \"vm_version\": 1, \"native_binaries\": {}, \"run_type\": \"DynamicLib\" }}",
+                            "{{\"is_lock_script\": {}, \"is_output\": false, \"script_index\": {}, \"vm_version\": {}, \"native_binaries\": {}, \"run_type\": \"DynamicLib\" }}",
                             group.group_type == ckb_script::ScriptGroupType::Lock,
-                            group.input_indices[0], native_binaries
+                            group.input_indices[0], 2, native_binaries
                         );
                         println!("---- setup: {}", &setup);
                         std::fs::write(&running_setup, setup).expect("write setup");
