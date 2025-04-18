@@ -172,4 +172,26 @@ fn test_deterministic_rng_context() {
         context.deploy_cell(data.to_vec().into())
     };
     assert_eq!(out_point_1, out_point_2);
+
+    let out_point_1 = {
+        let mut context = Context::new_with_deterministic_rng();
+
+        let alway_outpoint = context.deploy_cell(crate::builtin::ALWAYS_SUCCESS.clone());
+        let script = context
+            .build_script(&alway_outpoint, vec![30].into())
+            .unwrap();
+        let output = CellOutput::new_builder().lock(script).build();
+        context.create_cell(output, data.to_vec().into())
+    };
+    let out_point_2 = {
+        let mut context = Context::new_with_deterministic_rng();
+
+        let alway_outpoint = context.deploy_cell(crate::builtin::ALWAYS_SUCCESS.clone());
+        let script = context
+            .build_script(&alway_outpoint, vec![30].into())
+            .unwrap();
+        let output = CellOutput::new_builder().lock(script).build();
+        context.create_cell(output, data.to_vec().into())
+    };
+    assert_eq!(out_point_1, out_point_2);
 }

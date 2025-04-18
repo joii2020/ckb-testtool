@@ -239,7 +239,15 @@ impl Context {
 
     /// Create a cell with data.
     pub fn create_cell(&mut self, cell: CellOutput, data: Bytes) -> OutPoint {
-        let out_point = random_out_point();
+        let out_point = if self.deterministic_rng {
+            let data_hash = CellOutput::calc_data_hash(&data);
+            let mut rng = StdRng::from_seed(data_hash.as_slice().try_into().unwrap());
+            let mut tx_hash = [0u8; 32];
+            rng.fill(&mut tx_hash);
+            OutPoint::new_builder().tx_hash(tx_hash.pack()).build()
+        } else {
+            random_out_point()
+        };
         self.create_cell_with_out_point(out_point.clone(), cell, data);
         out_point
     }
